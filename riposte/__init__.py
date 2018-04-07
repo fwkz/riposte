@@ -1,1 +1,1 @@
-from .riposte import Riposte
+from .riposte import Riposte  # noqa
