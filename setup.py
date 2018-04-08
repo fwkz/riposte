@@ -9,6 +9,7 @@ setup(
     author="Mariusz Kupidura",
     author_email="f4wkes@gmail.com",
     description="REPL for humans",
+    install_requires=[],
     extras_require={
         "dev": [
             "flake8",
@@ -16,5 +17,12 @@ setup(
             "unify",
             "isort",
         ]
-    }
+    },
+    classifiers=[
+      "Operating System :: OS Independent",
+      "Intended Audience :: Developers",
+
+      "Programming Language :: Python",
+      "Programming Language :: Python :: 3.6",
+    ],
 )

@@ -12,9 +12,9 @@ def repl(history_file):
 
 
 @pytest.fixture
-def foo_command(repl):
+def foo_command(repl: Riposte):
     repl.command(name="foo")(Mock(name="function_handling_foo"))
-    return repl.commands["foo"]
+    return repl._commands["foo"]
 
 
 @pytest.fixture

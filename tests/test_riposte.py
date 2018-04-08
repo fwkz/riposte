@@ -27,14 +27,14 @@ def test_command(repl: Riposte):
     @repl.command(name="foo")
     def foo():
         pass
-    assert repl.commands == {
+    assert repl._commands == {
         "foo": Command("foo", foo),
     }
 
     @repl.command(name="bar")
     def bar():
         pass
-    assert repl.commands == {
+    assert repl._commands == {
         "foo": Command("foo", foo),
         "bar": Command("bar", bar),
     }

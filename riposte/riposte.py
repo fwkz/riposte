@@ -18,9 +18,8 @@ class Riposte:
             history_file: Path = Path.home() / ".riposte",
             history_length: int = 100,
     ):
-        self.prompt = prompt
-
-        self.commands: Dict[str, Command] = {}
+        self._prompt = prompt
+        self._commands: Dict[str, Command] = {}
 
         self._setup_history(history_file, history_length)
         self._setup_completer()
@@ -84,7 +83,7 @@ class Riposte:
 
         Overwrite this method to suggest suitable commands.
         """
-        return self.commands.keys()
+        return self._commands.keys()
 
     def _raw_command_completer(
             self, text, line, start_index, end_index,
@@ -103,28 +102,37 @@ class Riposte:
     def _get_command(self, command_name: str) -> Command:
         """ Resolve command name into registered `Command` object. """
         try:
-            return self.commands[command_name]
+            return self._commands[command_name]
         except KeyError:
             raise CommandNotFoundError(f"Unknown command: '{command_name}'")
+
+    @property
+    def prompt(self):
+        """ Entrypoint for customizing prompt
+
+        In order to customize prompt depending on different state of
+        `Riposte` app please overwrite this method.
+        """
+        return self._prompt
 
     def command(self, name: str) -> Callable:
         """ Decorator for bounding commands into handling functions. """
 
         def wrapper(func: Callable):
-            if name not in self.commands:
-                self.commands[name] = Command(name, func)
+            if name not in self._commands:
+                self._commands[name] = Command(name, func)
             else:
                 raise RiposteException(f"'{name}' command already exists.")
             return func
 
         return wrapper
 
-    def complete(self, command_name: str) -> Callable:
+    def complete(self, command: str) -> Callable:
         """ Decorator for bounding complete function with `Command`. """
 
         def wrapper(func: Callable):
-            command = self._get_command(command_name)
-            command._completer_function = func
+            cmd = self._get_command(command)
+            cmd._completer_function = func
             return func
 
         return wrapper
