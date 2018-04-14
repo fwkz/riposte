@@ -1,5 +1,7 @@
 import typing
 
+from .exceptions import CommandError
+
 
 class Command:
     def __init__(self, name: str, func: typing.Callable):
@@ -9,7 +11,10 @@ class Command:
         self._completer_function = None
 
     def execute(self, *args, **kwargs):
-        return self._func(*args, **kwargs)
+        try:
+            return self._func(*args, **kwargs)
+        except TypeError as err:
+            raise CommandError(err)
 
     def complete(self, *args, **kwargs) -> typing.Sequence:
         if not self._completer_function:

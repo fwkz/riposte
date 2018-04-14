@@ -2,5 +2,5 @@ class RiposteException(Exception):
     pass
 
 
-class CommandNotFoundError(RiposteException):
+class CommandError(RiposteException):
     pass

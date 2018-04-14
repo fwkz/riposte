@@ -19,10 +19,10 @@ setup(
         ]
     },
     classifiers=[
-      "Operating System :: OS Independent",
-      "Intended Audience :: Developers",
+        "Operating System :: OS Independent",
+        "Intended Audience :: Developers",
 
-      "Programming Language :: Python",
-      "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.6",
     ],
 )

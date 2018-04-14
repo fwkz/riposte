@@ -4,14 +4,16 @@ import readline
 from typing import Callable, Dict, List, Optional, Sequence
 
 from .command import Command
-from .exceptions import CommandNotFoundError, RiposteException
+from .exceptions import CommandError, RiposteException
+from .printer.mixins import PrinterMixin
+from .printer.thread import PrinterThread
 
 
 def is_libedit():
     return "libedit" in readline.__doc__
 
 
-class Riposte:
+class Riposte(PrinterMixin):
     def __init__(
             self,
             prompt: str = "riposte:~ $ ",
@@ -21,6 +23,7 @@ class Riposte:
         self._prompt = prompt
         self._commands: Dict[str, Command] = {}
 
+        self._printer_thread = PrinterThread()
         self._setup_history(history_file, history_length)
         self._setup_completer()
 
@@ -64,7 +67,7 @@ class Riposte:
                 else:
                     try:
                         complete_function = self._get_command(cmd).complete
-                    except CommandNotFoundError:
+                    except CommandError:
                         return
             else:
                 complete_function = self._raw_command_completer
@@ -78,19 +81,20 @@ class Riposte:
         except IndexError:
             return None
 
-    def _suggested_commands(self) -> List[str]:
-        """ Entry point for intelligent tab completion.
+    def contextual_complete(self) -> List[str]:
+        """ Entry point for contextual tab completion.
 
-        Overwrite this method to suggest suitable commands.
+        Entry point for contextual tab completion depending on `Riposte` app
+        state. Overwrite this method to suggest suitable commands.
         """
-        return self._commands.keys()
+        return list(self._commands.keys())
 
     def _raw_command_completer(
             self, text, line, start_index, end_index,
     ) -> List[str]:
         """ Complete command w/o any argument """
         return [
-            command for command in self._suggested_commands()
+            command for command in self.contextual_complete()
             if command.startswith(text)
         ]
 
@@ -104,14 +108,14 @@ class Riposte:
         try:
             return self._commands[command_name]
         except KeyError:
-            raise CommandNotFoundError(f"Unknown command: '{command_name}'")
+            raise CommandError(f"Unknown command: '{command_name}'")
 
     @property
     def prompt(self):
         """ Entrypoint for customizing prompt
 
-        In order to customize prompt depending on different state of
-        `Riposte` app please overwrite this method.
+        Please overwrite this method to provide contextual prompt depending on
+        different state of `Riposte` app.
         """
         return self._prompt
 
@@ -138,15 +142,18 @@ class Riposte:
         return wrapper
 
     def run(self) -> None:
+        self._printer_thread.start()
         while True:
             try:
                 command_name, *args = self._parse_line(input(self.prompt))
                 if command_name:
                     self._get_command(command_name).execute(*args)
             except RiposteException as err:
-                print(err)
+                self.error(err)
             except EOFError:
-                print()
+                self.print()
                 break
             except KeyboardInterrupt:
-                print()
+                self.print()
+            finally:
+                self._printer_thread.wait()
