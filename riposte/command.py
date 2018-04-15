@@ -4,8 +4,14 @@ from .exceptions import CommandError
 
 
 class Command:
-    def __init__(self, name: str, func: typing.Callable):
+    def __init__(
+            self,
+            name: str,
+            func: typing.Callable,
+            description: str,
+    ):
         self.name = name
+        self.description = description
 
         self._func = func
         self._completer_function = None
@@ -21,6 +27,13 @@ class Command:
             return ()
 
         return self._completer_function(*args, **kwargs)
+
+    def attach_completer(self, completer_function: typing.Callable):
+        if self._completer_function:
+            raise CommandError(
+                f"Command '{self.name}' already has completer function."
+            )
+        self._completer_function = completer_function
 
     def __str__(self):
         return self.name

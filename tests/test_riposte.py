@@ -24,19 +24,19 @@ def test_setup_history(mocked_readline, history_file):
 
 
 def test_command(repl: Riposte):
-    @repl.command(name="foo")
+    @repl.command(name="foo", description="scoobeedoo")
     def foo():
         pass
     assert repl._commands == {
-        "foo": Command("foo", foo),
+        "foo": Command("foo", foo, "scoobeedoo")
     }
 
     @repl.command(name="bar")
     def bar():
         pass
     assert repl._commands == {
-        "foo": Command("foo", foo),
-        "bar": Command("bar", bar),
+        "foo": Command("foo", foo, "scoobeedoo"),
+        "bar": Command("bar", bar, ""),
     }
 
 
@@ -79,4 +79,15 @@ def test_complete_not_registered(repl: Riposte):
     with pytest.raises(RiposteException):
         @repl.complete("foo")
         def complete_foo(*_):
+            pass
+
+
+def test_complete_already_attached(repl: Riposte, foo_command: Command):
+    with pytest.raises(RiposteException):
+        @repl.complete("foo")
+        def complete_foo_alpha(*_):
+            pass
+
+        @repl.complete("foo")
+        def complete_foo_bravo(*_):
             pass

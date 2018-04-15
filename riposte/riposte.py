@@ -119,12 +119,12 @@ class Riposte(PrinterMixin):
         """
         return self._prompt
 
-    def command(self, name: str) -> Callable:
+    def command(self, name: str, description: str = "") -> Callable:
         """ Decorator for bounding commands into handling functions. """
 
         def wrapper(func: Callable):
             if name not in self._commands:
-                self._commands[name] = Command(name, func)
+                self._commands[name] = Command(name, func, description)
             else:
                 raise RiposteException(f"'{name}' command already exists.")
             return func
@@ -136,7 +136,7 @@ class Riposte(PrinterMixin):
 
         def wrapper(func: Callable):
             cmd = self._get_command(command)
-            cmd._completer_function = func
+            cmd.attach_completer(func)
             return func
 
         return wrapper
@@ -151,7 +151,6 @@ class Riposte(PrinterMixin):
             except RiposteException as err:
                 self.error(err)
             except EOFError:
-                self.print()
                 break
             except KeyboardInterrupt:
                 self.print()
