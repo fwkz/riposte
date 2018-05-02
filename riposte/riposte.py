@@ -34,17 +34,16 @@ class Riposte(PrinterMixin):
                 if is_libedit():
                     history.write("_HiStOrY_V2_\n\n")
 
-            readline.read_history_file(str(history_file))
-            readline.set_history_length(history_length)
-            atexit.register(readline.write_history_file, str(history_file))
+        readline.read_history_file(str(history_file))
+        readline.set_history_length(history_length)
+        atexit.register(readline.write_history_file, str(history_file))
 
     def _setup_completer(self) -> None:
         readline.set_completer(self._complete)
         readline.set_completer_delims(" \t\n;")
-        if is_libedit():
-            readline.parse_and_bind("bind ^I rl_complete")
-        else:
-            readline.parse_and_bind("tab: complete")
+        readline.parse_and_bind(
+            "bind ^I rl_complete" if is_libedit() else "tab: complete"
+        )
 
     def _complete(self, text: str, state: int) -> Optional[Sequence[str]]:
         """ Return the next possible completion for `text`.
