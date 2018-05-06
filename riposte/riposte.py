@@ -119,7 +119,7 @@ class Riposte(PrinterMixin):
         return self._prompt
 
     def command(self, name: str, description: str = "") -> Callable:
-        """ Decorator for bounding commands into handling functions. """
+        """ Decorator for bounding command with handling function. """
 
         def wrapper(func: Callable):
             if name not in self._commands:
