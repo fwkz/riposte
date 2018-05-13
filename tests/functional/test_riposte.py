@@ -26,3 +26,13 @@ def test_command_specific_completer(sut):
     sut.expect("\r\naaa  abba\r\n\r\r\nsut > foo a")
     sut.send("b\t")
     sut.expect("ba")
+
+
+def test_raw_complete(sut):
+    sut.send("\t\t")
+    sut.expect("\r\nbar foo\r\n\r\r\nsut > ")
+
+    sut.send("f\t")
+    sut.expect("foo")
+    sut.send("\t")
+    sut.expect("\r\nfoo\r\n\r\r\nsut > foo")
