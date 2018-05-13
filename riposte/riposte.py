@@ -151,6 +151,7 @@ class Riposte(PrinterMixin):
             except RiposteException as err:
                 self.error(err)
             except EOFError:
+                self.print()
                 break
             except KeyboardInterrupt:
                 self.print()
