@@ -13,6 +13,7 @@ setup(
     extras_require={
         "dev": [
             "flake8",
+            "pexpect",
             "pytest",
             "unify",
             "isort",
