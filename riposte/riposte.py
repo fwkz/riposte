@@ -1,6 +1,7 @@
 import atexit
 from pathlib import Path
 import readline
+import shlex
 from typing import Callable, Dict, List, Optional, Sequence
 
 from .command import Command
@@ -100,7 +101,7 @@ class Riposte(PrinterMixin):
     @staticmethod
     def _parse_line(line: str) -> List[str]:
         """ Split input line into command's name and its arguments. """
-        return line.strip().split() or [""]
+        return shlex.split(line) or [""]
 
     def _get_command(self, command_name: str) -> Command:
         """ Resolve command name into registered `Command` object. """
