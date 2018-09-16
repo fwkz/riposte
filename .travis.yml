@@ -1,10 +1,10 @@
 language: python
-os:
-  - linux
-  - osx
 python:
   - "3.6"
 install:
   - pip install .[dev]
 script:
+  - flake8
+  - isort --check-only
+  - unify --quote \" -r .
   - pytest
