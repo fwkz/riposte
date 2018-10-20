@@ -14,11 +14,7 @@ def args():
 
 @pytest.fixture
 def kwargs():
-    return {
-        "sep": "-",
-        "end": "+",
-        "file": mock.Mock()
-    }
+    return {"sep": "-", "end": "+", "file": mock.Mock()}
 
 
 @pytest.fixture

@@ -16,10 +16,10 @@ def is_libedit():
 
 class Riposte(PrinterMixin):
     def __init__(
-            self,
-            prompt: str = "riposte:~ $ ",
-            history_file: Path = Path.home() / ".riposte",
-            history_length: int = 100,
+        self,
+        prompt: str = "riposte:~ $ ",
+        history_file: Path = Path.home() / ".riposte",
+        history_length: int = 100,
     ):
         self._prompt = prompt
         self._commands: Dict[str, Command] = {}
@@ -90,11 +90,12 @@ class Riposte(PrinterMixin):
         return list(self._commands.keys())
 
     def _raw_command_completer(
-            self, text, line, start_index, end_index,
+        self, text, line, start_index, end_index
     ) -> List[str]:
         """ Complete command w/o any argument """
         return [
-            command for command in self.contextual_complete()
+            command
+            for command in self.contextual_complete()
             if command.startswith(text)
         ]
 

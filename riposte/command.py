@@ -4,12 +4,7 @@ from .exceptions import CommandError
 
 
 class Command:
-    def __init__(
-            self,
-            name: str,
-            func: typing.Callable,
-            description: str,
-    ):
+    def __init__(self, name: str, func: typing.Callable, description: str):
         self.name = name
         self.description = description
 
@@ -39,7 +34,4 @@ class Command:
         return self.name
 
     def __eq__(self, other):
-        return all((
-            self.name == other.name,
-            self._func is other._func,
-        ))
+        return all((self.name == other.name, self._func is other._func))

@@ -27,13 +27,13 @@ def test_command(repl: Riposte):
     @repl.command(name="foo", description="scoobeedoo")
     def foo():
         pass
-    assert repl._commands == {
-        "foo": Command("foo", foo, "scoobeedoo")
-    }
+
+    assert repl._commands == {"foo": Command("foo", foo, "scoobeedoo")}
 
     @repl.command(name="bar")
     def bar():
         pass
+
     assert repl._commands == {
         "foo": Command("foo", foo, "scoobeedoo"),
         "bar": Command("bar", bar, ""),
@@ -42,18 +42,22 @@ def test_command(repl: Riposte):
 
 def test_command_duplicated_command(repl: Riposte, foo_command):
     with pytest.raises(RiposteException):
+
         @repl.command(name="foo")
         def bar():
             pass
 
 
-@pytest.mark.parametrize(["raw_line", "parsed_line"], [
-    ("scoo bee doo", ["scoo", "bee", "doo"]),
-    ("  scoo  bee  doo  ", ["scoo", "bee", "doo"]),
-    ("\tscoo\tbee\tdoo\n", ["scoo", "bee", "doo"]),
-    ("", [""]),
-    ("  \t\n", [""]),
-])
+@pytest.mark.parametrize(
+    ["raw_line", "parsed_line"],
+    [
+        ("scoo bee doo", ["scoo", "bee", "doo"]),
+        ("  scoo  bee  doo  ", ["scoo", "bee", "doo"]),
+        ("\tscoo\tbee\tdoo\n", ["scoo", "bee", "doo"]),
+        ("", [""]),
+        ("  \t\n", [""]),
+    ],
+)
 def test_parse_line(raw_line, parsed_line, repl: Riposte):
     assert repl._parse_line(raw_line) == parsed_line
 
@@ -77,6 +81,7 @@ def test_complete(repl: Riposte, foo_command: Command):
 
 def test_complete_not_registered(repl: Riposte):
     with pytest.raises(RiposteException):
+
         @repl.complete("foo")
         def complete_foo(*_):
             pass
@@ -84,6 +89,7 @@ def test_complete_not_registered(repl: Riposte):
 
 def test_complete_already_attached(repl: Riposte, foo_command: Command):
     with pytest.raises(RiposteException):
+
         @repl.complete("foo")
         def complete_foo_alpha(*_):
             pass

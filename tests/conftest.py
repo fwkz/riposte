@@ -15,8 +15,7 @@ def repl(history_file):
 @pytest.fixture
 def sut():
     software_under_test = pexpect.spawn(
-        "python tests/functional/sut.py",
-        timeout=2,
+        "python tests/functional/sut.py", timeout=2
     )
 
     software_under_test.expect("sut > ")

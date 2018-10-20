@@ -6,11 +6,11 @@ from riposte.printer.thread import PrintResource
 
 class PrinterBaseMixin:
     def _print(
-            self,
-            *args,
-            sep: typing.Optional[str] = " ",
-            end: typing.Optional[str] = "\n",
-            file: typing.Optional[typing.IO] = sys.stdout,
+        self,
+        *args,
+        sep: typing.Optional[str] = " ",
+        end: typing.Optional[str] = "\n",
+        file: typing.Optional[typing.IO] = sys.stdout,
     ):
         self._printer_thread.put(
             PrintResource(content=args, sep=sep, end=end, file=file)
