@@ -36,10 +36,8 @@ def history_file(tmpdir):
 
 @pytest.fixture
 def command():
-    cmd = Command(
+    return Command(
         name="foo",
         func=Mock(name="mocked_handling_function"),
         description="foo description",
     )
-    cmd.attach_completer(Mock(name="mocked_completer_function"))
-    return cmd

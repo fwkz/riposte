@@ -2,7 +2,7 @@ import atexit
 from pathlib import Path
 import readline
 import shlex
-from typing import Callable, Dict, List, Optional, Sequence
+from typing import Callable, Dict, Iterable, List, Optional, Sequence
 
 from .command import Command
 from .exceptions import CommandError, RiposteException
@@ -120,12 +120,19 @@ class Riposte(PrinterMixin):
         """
         return self._prompt
 
-    def command(self, name: str, description: str = "") -> Callable:
+    def command(
+        self,
+        name: str,
+        description: str = "",
+        validators: Dict[str, Iterable[Callable]] = None,
+    ) -> Callable:
         """ Decorator for bounding command with handling function. """
 
         def wrapper(func: Callable):
             if name not in self._commands:
-                self._commands[name] = Command(name, func, description)
+                self._commands[name] = Command(
+                    name, func, description, validators
+                )
             else:
                 raise RiposteException(f"'{name}' command already exists.")
             return func
