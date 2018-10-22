@@ -1,6 +1,5 @@
 from unittest.mock import Mock
 
-import pexpect
 import pytest
 
 from riposte import Riposte
@@ -10,17 +9,6 @@ from riposte.command import Command
 @pytest.fixture
 def repl(history_file):
     return Riposte(history_file=history_file)
-
-
-@pytest.fixture
-def sut():
-    software_under_test = pexpect.spawn(
-        "python tests/functional/sut.py", timeout=2
-    )
-
-    software_under_test.expect("sut > ")
-    yield software_under_test
-    software_under_test.close()
 
 
 @pytest.fixture
