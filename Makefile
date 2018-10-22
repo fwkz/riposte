@@ -6,12 +6,12 @@ endef
 
 
 .PHONY: all
-all: reformat unit lint
+all: reformat tests lint
 
 
-.PHONY: unit
-unit: clean
-	$(call colorecho, "\nRunning unit tests...")
+.PHONY: tests
+tests: clean
+	$(call colorecho, "\nRunning tests...")
 	pytest $(ARGS)
 
 
