@@ -1,1 +1,1 @@
-from .hue import Hue  # noqa
+from .palette import Palette  # noqa
