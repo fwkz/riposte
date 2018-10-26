@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from riposte.printer import Hue
+from riposte.printer import Palette
 from riposte.printer.mixins import PrinterBaseMixin, PrinterMixin
 from riposte.printer.thread import PrintResource
 
@@ -24,9 +24,11 @@ def printer_mixin():
         yield mixin
 
 
-def test_hue():
+def test_palette():
     value = "scoobeedoo"
-    assert Hue.RED.color(value) == f"\033[{Hue.RED.value}m{value}\033[0m"
+    assert (
+        Palette.RED.format(value) == f"\033[{Palette.RED.value}m{value}\033[0m"
+    )
 
 
 def test_printer_mixin_info(printer_mixin, args, kwargs):
