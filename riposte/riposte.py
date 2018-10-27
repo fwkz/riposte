@@ -124,15 +124,13 @@ class Riposte(PrinterMixin):
         self,
         name: str,
         description: str = "",
-        validators: Dict[str, Iterable[Callable]] = None,
+        guides: Dict[str, Iterable[Callable]] = None,
     ) -> Callable:
         """ Decorator for bounding command with handling function. """
 
         def wrapper(func: Callable):
             if name not in self._commands:
-                self._commands[name] = Command(
-                    name, func, description, validators
-                )
+                self._commands[name] = Command(name, func, description, guides)
             else:
                 raise RiposteException(f"'{name}' command already exists.")
             return func

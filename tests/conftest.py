@@ -13,7 +13,9 @@ def repl(history_file):
 
 @pytest.fixture
 def foo_command(repl: Riposte):
-    repl.command(name="foo")(Mock(name="function_handling_foo"))
+    repl.command(name="foo")(
+        Mock(name="function_handling_foo", __annotations__={})
+    )
     return repl._commands["foo"]
 
 
@@ -26,6 +28,6 @@ def history_file(tmpdir):
 def command():
     return Command(
         name="foo",
-        func=Mock(name="mocked_handling_function"),
+        func=Mock(name="mocked_handling_function", __annotations__={}),
         description="foo description",
     )
