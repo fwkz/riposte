@@ -2,6 +2,7 @@ import inspect
 from typing import Callable, Dict, Iterable, List, Sequence
 
 from .exceptions import CommandError
+from .guides import extract_guides
 
 
 class Command:
@@ -10,7 +11,7 @@ class Command:
         name: str,
         func: Callable,
         description: str,
-        validators: Dict[str, Iterable[Callable]] = None,
+        guides: Dict[str, Iterable[Callable]] = None,
     ):
         self.name = name
         self.description = description
@@ -18,51 +19,78 @@ class Command:
         self._func = func
         self._completer_function = None
 
-        self._validators = {} if not validators else validators
-        self._validate_validators()
+        self._guides = extract_guides(self._func)
+        self._guides.update(guides if guides else {})
+        self._validate_guides()
 
-    def _validate_validators(self) -> None:
-        for parameter, command_validators in self._validators.items():
-            if not isinstance(command_validators, Iterable):
+    def _validate_guides(self) -> None:
+        """ Validate guides setup.
+
+        Check if guides setup is valid and raise exception with
+        informative message what is wrong.
+
+        """
+        for parameter, command_guides in self._guides.items():
+            if not isinstance(command_guides, Iterable):
                 raise CommandError(
-                    f"Command '{self.name}': validators for parameter "
+                    f"Command '{self.name}': guides for parameter "
                     f"'{parameter}' have to be iterable "
-                    f"not '{type(command_validators)}'"
+                    f"not '{type(command_guides)}'"
                 )
 
-            for validator in command_validators:
-                if not isinstance(validator, Callable):
+            for guide in command_guides:
+                if not isinstance(guide, Callable):
                     raise CommandError(
-                        f"Command '{self.name}': validator for "
+                        f"Command '{self.name}': guide for "
                         f"parameter '{parameter}' have to be "
-                        f"callable not {type(validator)}"
+                        f"callable not {type(guide)}"
                     )
 
-    def _apply_validators(self, *args) -> List:
+    def _apply_guides(self, *args: str) -> List:
+        """ Apply guide functions.
+
+        Apply guide functions to values of type `str` delivered by user
+        using `input()`.
+
+        """
         names = inspect.getfullargspec(self._func).args
-        validated = []
+        processed = []
         for arg, name in zip(args, names):
-            validators = self._validators.get(name, [])
-            for validator in validators:
-                arg = validator(arg)
-            validated.append(arg)
+            guides = self._guides.get(name, [])
+            for guide in guides:
+                arg = guide(arg)
+            processed.append(arg)
 
-        return validated
+        return processed
 
-    def execute(self, *args) -> None:
-        args = self._apply_validators(*args)
+    def execute(self, *args: str) -> None:
+        """ Execute handling function (`self._func`) bound to command.
+
+        In case of argument mismatch during function call we want to give
+        user informative feedback that's why we are wrapping
+        `TypeError` with `CommandError`.
+
+        """
+
+        args = self._apply_guides(*args)
         try:
             return self._func(*args)
         except TypeError as err:
             raise CommandError(err)
 
     def complete(self, *args, **kwargs) -> Sequence:
+        """ Execute completer function bound to this command. """
+
         if not self._completer_function:
             return ()
 
         return self._completer_function(*args, **kwargs)
 
     def attach_completer(self, completer_function: Callable) -> None:
+        """ Attach complater function.
+
+        # TODO: Maybe we should make it @property?
+        """
         if self._completer_function:
             raise CommandError(
                 f"Command '{self.name}' already has completer function."
