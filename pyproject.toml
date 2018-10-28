@@ -1,5 +1,37 @@
 [build-system]
-requires = ["setuptools", "wheel", "setuptools_scm"]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "riposte"
+requires-python = ">=3.6"
+author = "Mariusz Kupidura"
+author-email = "f4wkes@gmail.com"
+home-page = "https://github.com/fwkz/riposte"
+license="MIT"
+description-file = "README.md"
+keywords = "python repl frameworl cli console"
+classifiers=[
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Operating System :: POSIX",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Shells",
+]
+
+[tool.flit.metadata.requires-extra]
+dev = [
+    "black",
+    "flake8",
+    "isort",
+    "pytest"
+]
 
 [tool.black]
 line-length = 79
