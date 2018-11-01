@@ -54,8 +54,8 @@ def test_command_duplicated_command(repl: Riposte, foo_command):
         ("scoo bee doo", ["scoo", "bee", "doo"]),
         ("  scoo  bee  doo  ", ["scoo", "bee", "doo"]),
         ("\tscoo\tbee\tdoo\n", ["scoo", "bee", "doo"]),
-        ("", [""]),
-        ("  \t\n", [""]),
+        ("", []),
+        ("  \t\n", []),
     ],
 )
 def test_parse_line(raw_line, parsed_line, repl: Riposte):
