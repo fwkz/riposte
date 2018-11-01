@@ -60,15 +60,12 @@ class Riposte(PrinterMixin):
             start_index = readline.get_begidx() - stripped
             end_index = readline.get_endidx() - stripped
 
-            if start_index > 0:
+            if start_index > 0 and line:
                 cmd, *_ = self._parse_line(line)
-                if cmd == "":
+                try:
+                    complete_function = self._get_command(cmd).complete
+                except CommandError:
                     return
-                else:
-                    try:
-                        complete_function = self._get_command(cmd).complete
-                    except CommandError:
-                        return
             else:
                 complete_function = self._raw_command_completer
 
@@ -79,7 +76,7 @@ class Riposte(PrinterMixin):
         try:
             return self.completion_matches[state]
         except IndexError:
-            return None
+            return
 
     def contextual_complete(self) -> List[str]:
         """ Entry point for contextual tab completion.
@@ -103,7 +100,7 @@ class Riposte(PrinterMixin):
     def _parse_line(line: str) -> List[str]:
         """ Split input line into command's name and its arguments. """
         try:
-            return shlex.split(line) or [""]
+            return shlex.split(line)
         except ValueError as err:
             raise RiposteException(err)
 
@@ -154,9 +151,11 @@ class Riposte(PrinterMixin):
         self._printer_thread.start()
         while True:
             try:
-                command_name, *args = self._parse_line(input(self.prompt))
-                if command_name:
-                    self._get_command(command_name).execute(*args)
+                user_input = input(self.prompt)
+                if not user_input:
+                    continue
+                command_name, *args = self._parse_line(user_input)
+                self._get_command(command_name).execute(*args)
             except RiposteException as err:
                 self.error(err)
             except EOFError:
