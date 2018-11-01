@@ -102,7 +102,10 @@ class Riposte(PrinterMixin):
     @staticmethod
     def _parse_line(line: str) -> List[str]:
         """ Split input line into command's name and its arguments. """
-        return shlex.split(line) or [""]
+        try:
+            return shlex.split(line) or [""]
+        except ValueError as err:
+            raise RiposteException(err)
 
     def _get_command(self, command_name: str) -> Command:
         """ Resolve command name into registered `Command` object. """
