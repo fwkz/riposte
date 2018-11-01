@@ -62,9 +62,12 @@ def test_parse_line(raw_line, parsed_line, repl: Riposte):
     assert repl._parse_line(raw_line) == parsed_line
 
 
-def test_parse_line_no_closing_quotation(repl: Riposte):
+@pytest.mark.parametrize(
+    "invalid_line", ("'scoo", "scoo'", '"scoo', 'scoo"', "'scoo\"", "\"scoo'")
+)
+def test_parse_line_no_closing_quotation(invalid_line, repl: Riposte):
     with pytest.raises(RiposteException):
-        repl._parse_line('"scoo')
+        repl._parse_line(invalid_line)
 
 
 def test_get_command(repl: Riposte, foo_command):
