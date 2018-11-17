@@ -11,14 +11,14 @@ class CommandError(RiposteException):
     pass
 
 
-class ValidationError(RiposteException):
-    def __init__(self, value: str, validator: Callable):
+class GuideError(RiposteException):
+    def __init__(self, value: str, guide: Callable):
         self.value = value
-        self.validator = validator
+        self.guide = guide
 
     def __str__(self):
         return (
-            f"ValidationError: Can't validate "
-            f"{Palette.BOLD.format(self.value)} using "
-            f"{Palette.BOLD.format(self.validator.__name__)} validator"
+            f"ValidationError: Can't apply "
+            f"{Palette.BOLD.format(self.guide.__name__)} guide "
+            f"to value {Palette.BOLD.format(self.value)}"
         )

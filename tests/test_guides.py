@@ -4,7 +4,7 @@ from unittest import mock
 import pytest
 
 from riposte import guides
-from riposte.exceptions import ValidationError
+from riposte.exceptions import GuideError
 
 
 @mock.patch("riposte.guides.ast")
@@ -21,7 +21,7 @@ def test_literal(mocked_ast):
 def test_literal_exception(mocked_ast):
     mocked_ast.literal_eval.side_effect = TypeError
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(GuideError):
         guides.literal("foo")
 
 
@@ -38,7 +38,7 @@ def test_encode_exception():
     mocked_value = mock.Mock()
     mocked_value.encode.side_effect = UnicodeEncodeError
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(GuideError):
         guides.encode(mocked_value)
 
 

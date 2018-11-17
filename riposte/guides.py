@@ -1,25 +1,25 @@
 import ast
 from typing import Any, AnyStr, Callable, Dict, Tuple
 
-from riposte.exceptions import ValidationError
+from riposte.exceptions import GuideError
 
 
 def literal(value: str) -> Any:
     try:
         return ast.literal_eval(value)
     except Exception:
-        raise ValidationError(value, literal)
+        raise GuideError(value, literal)
 
 
 def encode(value: str) -> Any:
     try:
         return value.encode()
     except Exception:
-        raise ValidationError(value, encode)
+        raise GuideError(value, encode)
 
 
 def get_guides(annotation) -> Tuple[Callable]:
-    """ Based on given annotation get set of guides. """
+    """ Based on given annotation get chain of guides. """
 
     if annotation is AnyStr:
         return ()
