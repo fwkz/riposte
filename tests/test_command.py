@@ -1,3 +1,4 @@
+import inspect
 from unittest import mock
 
 import pytest
@@ -8,12 +9,16 @@ from riposte.exceptions import CommandError
 
 def test_execute(command):
     args = (1, 2, 3)
-    mocked_apply_guides = command._apply_guides = mock.Mock(return_value=args)
+    mocked_bind_arguments = command._bind_arguments = mock.Mock()
+    mocked_apply_guides = command._apply_guides = mock.MagicMock()
 
     command.execute(*args)
 
-    mocked_apply_guides.assert_called_once_with(*args)
-    command._func.assert_called_once_with(*args)
+    mocked_bind_arguments.assert_called_once_with(*args)
+    mocked_apply_guides.assert_called_once_with(
+        mocked_bind_arguments.return_value
+    )
+    command._func.assert_called_once_with(*mocked_apply_guides.return_value)
 
 
 def test_complete(command):
@@ -79,21 +84,19 @@ def test_command_setup_guides_update(mocked_extract_guides):
 
 
 def test_apply_guides(command):
-    validator_alpha = mock.Mock(name="alpha")
-    validator_bravo = mock.Mock(name="bravo")
+    def foo(x: int, *args: int):
+        pass
 
-    command._func = lambda x: None
-    command._guides = {"x": [validator_alpha, validator_bravo]}
+    command._func = foo
+    args = ("1", "2", "3")
+    command._process_arguments = mock.Mock(side_effect=([1], [2, 3]))
+    bound_arguments = inspect.signature(foo).bind(*args)
 
-    assert command._apply_guides(1) == [validator_bravo.return_value]
-
-    validator_alpha.assert_called_once_with(1)
-    validator_bravo.assert_called_once_with(validator_alpha.return_value)
-
-
-def test_apply_guides_no_guides(command):
-    command._func = lambda x, y: None
-    assert command._apply_guides(1, 2) == [1, 2]
+    assert command._apply_guides(bound_arguments) == [1, 2, 3]
+    assert command._process_arguments.call_args_list == [
+        mock.call("x", "1"),
+        mock.call("args", "2", "3"),
+    ]
 
 
 @pytest.mark.parametrize("guides", (1, "str", (int), [2.0]))
@@ -101,3 +104,42 @@ def test_validate_guides(command, guides):
     command._guides = {"foo": guides}
     with pytest.raises(CommandError):
         command._validate_guides()
+
+
+@mock.patch("riposte.command.inspect")
+def test_bind_arguments(inspect_mock, command):
+    args = (1, 2)
+    command._bind_arguments(*args)
+
+    inspect_mock.signature.assert_called_once_with(command._func)
+    inspect_mock.signature.return_value.bind.assert_called_once_with(*args)
+
+
+@mock.patch("riposte.command.inspect")
+def test_bind_arguments_exception(inspect_mock, command):
+    args = (1, 2)
+    inspect_mock.signature.return_value.bind.side_effect = TypeError
+
+    with pytest.raises(CommandError):
+        command._bind_arguments(*args)
+
+    inspect_mock.signature.assert_called_once_with(command._func)
+    inspect_mock.signature.return_value.bind.assert_called_once_with(*args)
+
+
+@pytest.mark.parametrize(
+    "args, guides, expected_value",
+    (
+        (("1",), {}, ["1"]),
+        (("1",), {"foo": (lambda x: x + "_",)}, ["1_"]),
+        (("1", "2"), {"foo": (lambda x: x + "_",)}, ["1_", "2_"]),
+        (
+            ("1", "2"),
+            {"foo": (lambda x: x + "_", lambda x: x + "@")},
+            ["1_@", "2_@"],
+        ),
+    ),
+)
+def test_process_arguments(args, guides, expected_value, command):
+    command._guides = guides
+    assert command._process_arguments("foo", *args) == expected_value

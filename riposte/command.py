@@ -46,22 +46,54 @@ class Command:
                         f"callable not {type(guide)}"
                     )
 
-    def _apply_guides(self, *args: str) -> List:
+    def _process_arguments(self, name: str, *args) -> List:
+        """ Process each argument according to selected chain of guides
+
+        Process each argument according to selected chain of guides. Each
+        guide from the collection is applied to the every argument.
+        Guide as input uses output from previous guide e.g.
+
+            guide_3(guide_2(guide_1("scoo")))
+
+        """
+        processed = []
+        for arg in args:
+            for guide in self._guides.get(name, []):
+                arg = guide(arg)
+            processed.append(arg)
+
+        return processed
+
+    def _apply_guides(self, bound_arguments: inspect.BoundArguments) -> List:
         """ Apply guide functions.
 
         Apply guide functions to values of type `str` delivered by user
         using `input()`.
 
+        Assumes that `args` have been already validated `_bind_arguments`,
+        hence `args` is matching `_func` signature, (`args <= parameters`)
+
         """
-        names = inspect.getfullargspec(self._func).args
         processed = []
-        for arg, name in zip(args, names):
-            guides = self._guides.get(name, [])
-            for guide in guides:
-                arg = guide(arg)
-            processed.append(arg)
+        for name, value in bound_arguments.arguments.items():
+            if (
+                bound_arguments.signature.parameters[name].kind
+                is inspect.Parameter.VAR_POSITIONAL
+            ):
+                arguments = self._process_arguments(name, *value)
+            else:
+                arguments = self._process_arguments(name, value)
+
+            processed.extend(arguments)
 
         return processed
+
+    def _bind_arguments(self, *args) -> inspect.BoundArguments:
+        """ Check whether given `args` match `_func` signature. """
+        try:
+            return inspect.signature(self._func).bind(*args)
+        except TypeError as e:
+            raise CommandError(e)
 
     def execute(self, *args: str) -> None:
         """ Execute handling function (`self._func`) bound to command.
@@ -71,12 +103,7 @@ class Command:
         `TypeError` with `CommandError`.
 
         """
-
-        args = self._apply_guides(*args)
-        try:
-            return self._func(*args)
-        except TypeError as err:
-            raise CommandError(err)
+        return self._func(*self._apply_guides(self._bind_arguments(*args)))
 
     def complete(self, *args, **kwargs) -> Sequence:
         """ Execute completer function bound to this command. """
