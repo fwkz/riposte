@@ -1,4 +1,4 @@
-from typing import AnyStr, Dict, List, Set
+from typing import AnyStr, Dict, List, Set, Text
 from unittest import mock
 
 import pytest
@@ -45,8 +45,9 @@ def test_encode_exception():
 @pytest.mark.parametrize(
     ("type_", "return_value"),
     (
-        (AnyStr, tuple()),
         (str, tuple()),
+        (AnyStr, tuple()),
+        (Text, tuple()),
         (bytes, (guides.encode,)),
         (int, (guides.literal,)),
         (Dict, (guides.literal,)),
