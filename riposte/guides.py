@@ -1,5 +1,5 @@
 import ast
-from typing import Any, AnyStr, Callable, Dict, Tuple
+from typing import Any, AnyStr, Callable, Dict, Text, Tuple
 
 from riposte.exceptions import GuideError
 
@@ -21,11 +21,9 @@ def encode(value: str) -> Any:
 def get_guides(annotation) -> Tuple[Callable]:
     """ Based on given annotation get chain of guides. """
 
-    if annotation is AnyStr:
+    if annotation in (str, AnyStr, Text):
         return ()
-    elif issubclass(annotation, str):
-        return ()
-    elif issubclass(annotation, bytes):
+    elif annotation is bytes:
         return (encode,)
     else:
         return (literal,)
