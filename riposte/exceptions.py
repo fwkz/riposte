@@ -18,7 +18,7 @@ class GuideError(RiposteException):
 
     def __str__(self):
         return (
-            f"ValidationError: Can't apply "
+            f"GuideError: Can't apply "
             f"{Palette.BOLD.format(self.guide.__name__)} guide "
             f"to value {Palette.BOLD.format(self.value)}"
         )
