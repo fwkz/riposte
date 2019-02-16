@@ -12,7 +12,12 @@ all: reformat tests lint
 .PHONY: build
 build: clean
 	$(call colorecho, "\n Building package distributions...")
-	python setup.py bdist_wheel
+	python setup.py sdist bdist_wheel
+
+
+.PHONY: publish
+publish: build
+	twine upload dist/*
 
 
 .PHONY: tests
@@ -42,4 +47,4 @@ clean:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f  {} +
-	rm -rf riposte.egg-info build dist
+	rm -rf build dist pip-wheel-metadata
