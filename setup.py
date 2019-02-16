@@ -4,23 +4,28 @@ from setuptools import find_packages, setup
 
 HERE = Path(__file__).parent.resolve()
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name="riposte",
     use_scm_version={
         "root": str(HERE),
         "write_to": str(HERE / "riposte" / "_version.py"),
     },
-    description="REPL for humans",
+    description=(
+        "Package for wrapping applications inside "
+        "a tailored interactive shell."
+    ),
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     license="MIT",
     url="https://github.com/fwkz/riposte",
     author="Mariusz Kupidura",
     author_email="f4wkes@gmail.com",
     packages=find_packages(),
     python_requires=">=3.6",
-    zip_safe=False,
-    test_suite="tests",
-    install_requires=[],
-    extras_require={"dev": ["black", "flake8", "isort", "pytest"]},
+    extras_require={"dev": ["black", "flake8", "isort", "pytest", "twine"]},
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Console",
