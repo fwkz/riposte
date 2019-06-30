@@ -27,7 +27,7 @@ setup(
     python_requires=">=3.6",
     extras_require={"dev": ["black", "flake8", "isort", "pytest", "twine"]},
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Environment :: Console",
         "Operating System :: POSIX",
         "Intended Audience :: Developers",
