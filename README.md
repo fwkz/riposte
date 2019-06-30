@@ -457,7 +457,7 @@ foo >
 ```
 
 ## Project status
-_Riposte_ is under development. It might be considered to be in alpha phase. 
+_Riposte_ is under development. It might be considered to be in beta phase. 
 There might be some breaking changes in the future although a lot of concepts 
 present here was already battle-tested during 
 [routersploit](https://github.com/threat9/routersploit) development.
