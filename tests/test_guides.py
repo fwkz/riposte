@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-from riposte import guides
+from riposte import Riposte, guides
 from riposte.exceptions import GuideError
 
 
@@ -68,3 +68,29 @@ def test_extract_guides(mocked_get_guides):
 
     mocked_get_guides.assert_called_once_with(type_hint)
     assert extracted_guides == {"foo": mocked_get_guides.return_value}
+
+
+@pytest.mark.parametrize(
+    ("input", "guide", "expected"),
+    (
+        ("foobar", str, "foobar"),
+        ("'foobar'", str, "foobar"),
+        ("'foo bar'", str, "foo bar"),
+        ("foobar", bytes, b"foobar"),
+        ("'foobar'", bytes, b"foobar"),
+        ("'foo bar'", bytes, b"foo bar"),
+        ("1", int, 1),
+        ("'1'", int, 1),
+        ("\"[1, 'foo']\"", list, [1, "foo"]),
+        ("\"{'foo': 'bar'}\"", dict, {"foo": "bar"}),
+    ),
+)
+@mock.patch("builtins.input")
+def test_guides(mocked_input, input, guide, expected, repl: Riposte):
+    mocked_input.return_value = "foobar " + input
+
+    @repl.command("foobar")
+    def handler_function(x: guide):
+        assert x == expected
+
+    repl._process()

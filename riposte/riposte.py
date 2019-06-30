@@ -147,15 +147,23 @@ class Riposte(PrinterMixin):
 
         return wrapper
 
+    def _process(self) -> None:
+        """ Process input provided by the input generator.
+
+        Get provided input, parse it, pick appropriate command handling
+        function and execute it.
+        """
+        user_input = input(self.prompt)
+        if not user_input:
+            return
+        command_name, *args = self._parse_line(user_input)
+        self._get_command(command_name).execute(*args)
+
     def run(self) -> None:
         self._printer_thread.start()
         while True:
             try:
-                user_input = input(self.prompt)
-                if not user_input:
-                    continue
-                command_name, *args = self._parse_line(user_input)
-                self._get_command(command_name).execute(*args)
+                self._process()
             except RiposteException as err:
                 self.error(err)
             except EOFError:
