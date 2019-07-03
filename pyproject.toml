@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel", "setuptools_scm"]
+requires = ["setuptools", "wheel", "setuptools_scm", "pyreadline"]
 
 [tool.black]
 line-length = 79

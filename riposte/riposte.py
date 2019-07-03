@@ -1,6 +1,9 @@
 import atexit
 from pathlib import Path
-import readline
+try:
+    import readline
+except ImportError:
+    impot pyreadline as readline
 import shlex
 from typing import Callable, Dict, Iterable, List, Optional, Sequence
 
@@ -11,7 +14,7 @@ from .printer.thread import PrinterThread
 
 
 def is_libedit():
-    return "libedit" in readline.__doc__
+    return readline.__doc__ and "libedit" in readline.__doc__
 
 
 class Riposte(PrinterMixin):
