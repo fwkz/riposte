@@ -21,10 +21,12 @@ class Riposte(PrinterMixin):
     def __init__(
         self,
         prompt: str = "riposte:~ $ ",
+        splash: str = None,
         history_file: Path = Path.home() / ".riposte",
         history_length: int = 100,
     ):
         self._prompt = prompt
+        self._splash = splash
         self._commands: Dict[str, Command] = {}
 
         self._printer_thread = PrinterThread()
@@ -123,6 +125,10 @@ class Riposte(PrinterMixin):
         """
         return self._prompt
 
+    @property
+    def splash(self):
+        return self._splash
+
     def command(
         self,
         name: str,
@@ -164,6 +170,11 @@ class Riposte(PrinterMixin):
 
     def run(self) -> None:
         self._printer_thread.start()
+
+        # Display splash text
+        if self.splash:
+            self.print(self.splash)
+            
         while True:
             try:
                 self._process()

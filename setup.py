@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 from setuptools import find_packages, setup
@@ -25,6 +26,7 @@ setup(
     author_email="f4wkes@gmail.com",
     packages=find_packages(),
     python_requires=">=3.6",
+    install_requires=['pyreadline>=2.1'] if sys.platform.startswith('win') else [],  # Platform-specific dependencies
     extras_require={"dev": ["black", "flake8", "isort", "pytest", "twine"]},
     classifiers=[
         "Development Status :: 4 - Beta",
