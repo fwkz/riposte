@@ -423,30 +423,36 @@ determine prompt based on `MODULE` value:
 from riposte import Riposte
 
 
-MODULE = None
+class Application:
+    def __init__(self):
+        self.module = None
+
 
 class CustomRiposte(Riposte):
     @property
     def prompt(self):
-        if MODULE:
-            return f"foo:{MODULE} > "
+        if app.module:
+            return f"foo:{app.module} > "
         else:
             return self._prompt  # reference to `prompt` parameter.
-            
+
+
+app = Application()
 repl = CustomRiposte(prompt="foo > ")
+
 
 @repl.command("set")
 def set_module(module_name: str):
-    global MODULE 
-    MODULE = module_name
+    app.module = module_name
     repl.success("Module has been set.")
-    
+
+
 @repl.command("unset")
 def unset_module():
-    global MODULE 
-    MODULE = None
+    app.module = None
     repl.success("Module has been unset.")
-    
+
+
 repl.run()
 ```
 
