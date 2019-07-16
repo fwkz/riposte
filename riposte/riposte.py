@@ -1,6 +1,9 @@
 import atexit
 from pathlib import Path
-import readline
+try:
+    import readline
+except ImportError:
+    import pyreadline
 import shlex
 from typing import Callable, Dict, Iterable, List, Optional, Sequence
 
