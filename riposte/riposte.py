@@ -18,7 +18,7 @@ class Riposte(PrinterMixin):
     def __init__(
         self,
         prompt: str = "riposte:~ $ ",
-        splash: str = None,
+        splash: Optional[str] = None,
         history_file: Path = Path.home() / ".riposte",
         history_length: int = 100,
     ):
