@@ -18,10 +18,12 @@ class Riposte(PrinterMixin):
     def __init__(
         self,
         prompt: str = "riposte:~ $ ",
+        banner: Optional[str] = None,
         history_file: Path = Path.home() / ".riposte",
         history_length: int = 100,
     ):
         self._prompt = prompt
+        self._banner = banner
         self._commands: Dict[str, Command] = {}
 
         self._printer_thread = PrinterThread()
@@ -161,6 +163,10 @@ class Riposte(PrinterMixin):
 
     def run(self) -> None:
         self._printer_thread.start()
+
+        if self._banner:
+            self.print(self._banner)
+            
         while True:
             try:
                 self._process()
