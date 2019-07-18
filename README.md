@@ -36,6 +36,7 @@ and they were completely right, the better way is called _Riposte_.
     * [Printing](#printing)
     * [History](#history)
     * [Prompt](#Prompt)
+    * [Banner](#Banner)
 * [Project status](#project-status)
 * [Contributing](#contributing)
 * [Versioning](#versioning)
@@ -462,6 +463,44 @@ foo > set bar
 foo:bar > unset
 [+] Module has been unset.
 foo >
+```
+
+### Banner
+```python
+# banner.py
+
+from riposte import Riposte
+
+BANNER = """ _   _      _ _         _    _            _     _ _ 
+| | | |    | | |       | |  | |          | |   | | |
+| |_| | ___| | | ___   | |  | | ___  _ __| | __| | |
+|  _  |/ _ \ | |/ _ \  | |/\| |/ _ \| '__| |/ _` | |
+| | | |  __/ | | (_) | \  /\  / (_) | |  | | (_| |_|
+\_| |_/\___|_|_|\___/   \/  \/ \___/|_|  |_|\__,_(_)
+Welcome User Hello World v1.2.3
+"""
+
+repl = Riposte(banner=BANNER)
+
+
+@repl.command("hello")
+def hello():
+    repl.print("Hello World!")
+
+
+repl.run()
+```
+```bash
+$ python banner.py
+ _   _      _ _         _    _            _     _ _ 
+| | | |    | | |       | |  | |          | |   | | |
+| |_| | ___| | | ___   | |  | | ___  _ __| | __| | |
+|  _  |/ _ \ | |/ _ \  | |/\| |/ _ \| '__| |/ _` | |
+| | | |  __/ | | (_) | \  /\  / (_) | |  | | (_| |_|
+\_| |_/\___|_|_|\___/   \/  \/ \___/|_|  |_|\__,_(_)
+Welcome User Hello World v1.2.3
+
+riposte:~ $
 ```
 
 ## Project status
