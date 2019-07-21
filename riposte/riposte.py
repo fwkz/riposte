@@ -100,6 +100,33 @@ class Riposte(PrinterMixin):
         ]
 
     @staticmethod
+    def _split_inline_commands(line: str) -> List[str]:
+        """ Split multiple inline commands. """
+        parsed = shlex.split(line, posix=False)
+
+        commands = []
+        command = []
+        for element in parsed:
+            if element[-2:] == "\\;":
+                command.append(element)
+            elif element[-2:] == ";;":
+                raise CommandError("unexpected token: ;;")
+            elif element[-1] == ";" and element[:-1] != "":
+                command.append(element[:-1])
+                commands.append(command)
+                command = []
+            elif element[-1] == ";" and element[:-1] == "":
+                commands.append(command)
+                command = []
+            else:
+                command.append(element)
+
+        if command:
+            commands.append(command)
+
+        return [" ".join(command) for command in commands if command]
+
+    @staticmethod
     def _parse_line(line: str) -> List[str]:
         """ Split input line into command's name and its arguments. """
         try:
@@ -159,8 +186,10 @@ class Riposte(PrinterMixin):
         user_input = input(self.prompt)
         if not user_input:
             return
-        command_name, *args = self._parse_line(user_input)
-        self._get_command(command_name).execute(*args)
+
+        for line in self._split_inline_commands(user_input):
+            command_name, *args = self._parse_line(line)
+            self._get_command(command_name).execute(*args)
 
     def run(self) -> None:
         self._printer_thread.start()

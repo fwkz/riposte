@@ -4,7 +4,7 @@ import pytest
 
 from riposte import Riposte
 from riposte.command import Command
-from riposte.exceptions import RiposteException
+from riposte.exceptions import CommandError, RiposteException
 
 
 @mock.patch("riposte.riposte.readline")
@@ -105,3 +105,56 @@ def test_complete_already_attached(repl: Riposte, foo_command: Command):
         @repl.complete("foo")
         def complete_foo_bravo(*_):
             pass
+
+
+@pytest.mark.parametrize(
+    ("input", "expected"),
+    (
+        ("foo bar baz", ["foo bar baz"]),
+        ("foo bar;", ["foo bar"]),
+        ("foo bar; ;", ["foo bar"]),
+        ("foo bar; scoo bee; doo bee", ["foo bar", "scoo bee", "doo bee"]),
+        ("foo   ;   bar;  ;", ["foo", "bar"]),
+        ("foo 'bar;' scoo bee", ["foo 'bar;' scoo bee"]),
+        ("foo bar\; scoo bee", ["foo bar\\; scoo bee"]),  # noqa
+        ("foo bar\\; scoo bee", ["foo bar\\; scoo bee"]),
+        ("foo bar\\\; scoo bee", ["foo bar\\\\; scoo bee"]),
+    ),
+)
+def test_split_inline_commands(input, expected, repl: Riposte):
+    assert repl._split_inline_commands(input) == expected
+
+
+def test_split_inline_commands_unexpected_token(repl: Riposte):
+    with pytest.raises(CommandError):
+        repl._split_inline_commands("foo bar;;")
+
+
+@mock.patch("builtins.input", return_value="")
+def test_process_no_input(mocked_input, repl: Riposte):
+    repl._split_inline_commands = mock.MagicMock()
+    repl._parse_line = mock.Mock()
+    repl._get_command = mock.Mock()
+
+    repl._process()
+
+    repl._split_inline_commands.assert_not_called()
+    repl._parse_line.assert_not_called()
+    repl._get_command.assert_not_called()
+
+
+@mock.patch("builtins.input", return_value="foo bar; scoo bee")
+def test_process_multi_line(mocked_input, repl: Riposte):
+    repl._get_command = mock.Mock()
+
+    repl._process()
+
+    assert repl._get_command.call_args_list == [
+        mock.call("foo"),
+        mock.call("scoo"),
+    ]
+
+    assert repl._get_command.return_value.execute.call_args_list == [
+        mock.call("bar"),
+        mock.call("bee"),
+    ]
