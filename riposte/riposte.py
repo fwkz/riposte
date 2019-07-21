@@ -112,7 +112,7 @@ class Riposte(PrinterMixin):
         try:
             return self._commands[command_name]
         except KeyError:
-            raise CommandError(f"Unknown command: '{command_name}'")
+            raise CommandError(f"Unknown command: {command_name}")
 
     @property
     def prompt(self):
