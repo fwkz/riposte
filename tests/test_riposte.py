@@ -130,6 +130,12 @@ def test_split_inline_commands_unexpected_token(repl: Riposte):
         repl._split_inline_commands("foo bar;;")
 
 
+@mock.patch("builtins.input", return_value="foo bar")
+def test_process(mocked_input, repl: Riposte, foo_command: Command):
+    repl._process()
+    foo_command._func.assert_called_once_with("bar")
+
+
 @mock.patch("builtins.input", return_value="")
 def test_process_no_input(mocked_input, repl: Riposte):
     repl._split_inline_commands = mock.MagicMock()
