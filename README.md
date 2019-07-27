@@ -37,6 +37,7 @@ and they were completely right, the better way is called _Riposte_.
     * [History](#history)
     * [Prompt](#Prompt)
     * [Banner](#Banner)
+    * [CLI and inline command execution](#CLI-and-inline-command-execution)
 * [Project status](#project-status)
 * [Contributing](#contributing)
 * [Versioning](#versioning)
@@ -502,6 +503,27 @@ Welcome User Hello World v1.2.3
 
 riposte:~ $
 ```
+
+### CLI and inline command execution
+Similarly to the `bash` if you delimit commands with semicolon you can trigger 
+execution of multiple commands in one line.
+```bash
+riposte:~ $ hello; hello; hello
+[+] Is it me you looking for?
+[+] Is it me you looking for?
+[+] Is it me you looking for?
+```
+`Riposte` also exposes CLI for your applications which gives you the ability to 
+pass commands using `-c` switch:
+```bash
+$ python app.py -c "hello; hello; hello;"
+[+] Is it me you looking for?
+[+] Is it me you looking for?
+[+] Is it me you looking for?
+$ 
+```
+Given all of this, you can also start to treat your application as something 
+that could be turned into automated scripts.
 
 ## Project status
 _Riposte_ is under development. It might be considered to be in beta phase. 
