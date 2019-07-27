@@ -1,3 +1,4 @@
+import argparse
 import atexit
 from pathlib import Path
 import readline
@@ -6,6 +7,7 @@ from typing import Callable, Dict, Iterable, List, Optional, Sequence
 
 from .command import Command
 from .exceptions import CommandError, RiposteException
+from .input_streams import cli_input, prompt_input
 from .printer.mixins import PrinterMixin
 from .printer.thread import PrinterThread
 
@@ -26,7 +28,14 @@ class Riposte(PrinterMixin):
 
         self._prompt = prompt
         self._commands: Dict[str, Command] = {}
+        self._input_stream = prompt_input(lambda: self.prompt)
 
+        self._parser = argparse.ArgumentParser()
+        self._parser.add_argument(
+            "-c",
+            metavar="commands",
+            help="commands passed in as string, delimited with semicolon",
+        )
         self._printer_thread = PrinterThread()
         self._setup_history(history_file, history_length)
         self._setup_completer()
@@ -183,7 +192,7 @@ class Riposte(PrinterMixin):
         Get provided input, parse it, pick appropriate command handling
         function and execute it.
         """
-        user_input = input(self.prompt)
+        user_input = next(self._input_stream)()
         if not user_input:
             return
 
@@ -193,6 +202,10 @@ class Riposte(PrinterMixin):
 
     def run(self) -> None:
         self._printer_thread.start()
+
+        arguments = self._parser.parse_args()
+        if arguments.c:
+            self._input_stream = cli_input(arguments.c)
 
         if self.banner:
             # builtin print() to avoid race condition with input()
@@ -205,6 +218,8 @@ class Riposte(PrinterMixin):
                 self.error(err)
             except EOFError:
                 self.print()
+                break
+            except StopIteration:
                 break
             except KeyboardInterrupt:
                 self.print()
