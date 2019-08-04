@@ -5,9 +5,9 @@ import readline
 import shlex
 from typing import Callable, Dict, Iterable, List, Optional, Sequence
 
+from . import input_streams
 from .command import Command
-from .exceptions import CommandError, RiposteException
-from .input_streams import cli_input, prompt_input
+from .exceptions import CommandError, RiposteException, StopRiposteException
 from .printer.mixins import PrinterMixin
 from .printer.thread import PrinterThread
 
@@ -28,9 +28,10 @@ class Riposte(PrinterMixin):
 
         self._prompt = prompt
         self._commands: Dict[str, Command] = {}
-        self._input_stream = prompt_input(lambda: self.prompt)
+        self._input_stream = input_streams.prompt_input(lambda: self.prompt)
 
         self._parser = argparse.ArgumentParser()
+        self._parser.add_argument("file", nargs="?", default=None)
         self._parser.add_argument(
             "-c",
             metavar="commands",
@@ -135,6 +136,20 @@ class Riposte(PrinterMixin):
 
         return [" ".join(command) for command in commands if command]
 
+    def _parse_args(self) -> bool:  # TODO: test it
+        """ Parse passed arguments and determine alternative input stream. """
+        alternative_input_stream = False
+        arguments = self._parser.parse_args()
+
+        if arguments.c:
+            self._input_stream = input_streams.cli_input(arguments.c)
+            alternative_input_stream = True
+        elif arguments.file:
+            self._input_stream = input_streams.file_input(Path(arguments.file))
+            alternative_input_stream = True
+
+        return alternative_input_stream
+
     @staticmethod
     def _parse_line(line: str) -> List[str]:
         """ Split input line into command's name and its arguments. """
@@ -187,9 +202,9 @@ class Riposte(PrinterMixin):
         return wrapper
 
     def _process(self) -> None:
-        """ Process input provided by the input generator.
+        """ Process input provided by the input stream.
 
-        Get provided input, parse it, pick appropriate command handling
+        Get provided input, parse it, pick appropriate handling
         function and execute it.
         """
         user_input = next(self._input_stream)()
@@ -203,11 +218,9 @@ class Riposte(PrinterMixin):
     def run(self) -> None:
         self._printer_thread.start()
 
-        arguments = self._parser.parse_args()
-        if arguments.c:
-            self._input_stream = cli_input(arguments.c)
+        alternative_input_stream = self._parse_args()
 
-        if self.banner:
+        if self.banner and not alternative_input_stream:
             # builtin print() to avoid race condition with input()
             print(self.banner)
 
@@ -216,6 +229,9 @@ class Riposte(PrinterMixin):
                 self._process()
             except RiposteException as err:
                 self.error(err)
+            except StopRiposteException as err:
+                self.error(err)
+                break
             except EOFError:
                 self.print()
                 break

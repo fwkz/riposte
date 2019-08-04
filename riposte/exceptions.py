@@ -7,6 +7,10 @@ class RiposteException(Exception):
     pass
 
 
+class StopRiposteException(Exception):
+    pass
+
+
 class CommandError(RiposteException):
     pass
 

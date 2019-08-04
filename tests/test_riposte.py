@@ -164,3 +164,25 @@ def test_process_multi_line(mocked_input, repl: Riposte):
         mock.call("bar"),
         mock.call("bee"),
     ]
+
+
+@mock.patch("builtins.print")
+def test_banner(mocked_print, repl: Riposte):
+    repl.banner = "foobar"
+    repl._process = mock.Mock(side_effect=StopIteration)
+    repl._parse_args = mock.Mock(return_value=False)
+
+    repl.run()
+
+    mocked_print.assert_called_once_with(repl.banner)
+
+
+@mock.patch("builtins.print")
+def test_banner_alternative_stream(mocked_print, repl: Riposte):
+    repl.banner = "foobar"
+    repl._process = mock.Mock(side_effect=StopIteration)
+    repl._parse_args = mock.Mock(return_value=True)
+
+    repl.run()
+
+    mocked_print.assert_not_called()
