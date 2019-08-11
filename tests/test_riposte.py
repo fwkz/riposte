@@ -1,8 +1,9 @@
+from pathlib import Path
 from unittest import mock
 
 import pytest
 
-from riposte import Riposte
+from riposte import Riposte, input_streams
 from riposte.command import Command
 from riposte.exceptions import CommandError, RiposteException
 
@@ -169,8 +170,9 @@ def test_process_multi_line(mocked_input, repl: Riposte):
 @mock.patch("builtins.print")
 def test_banner(mocked_print, repl: Riposte):
     repl.banner = "foobar"
+    repl.print_banner = True
     repl._process = mock.Mock(side_effect=StopIteration)
-    repl._parse_args = mock.Mock(return_value=False)
+    repl.parse_cli_arguments = mock.Mock()
 
     repl.run()
 
@@ -180,9 +182,43 @@ def test_banner(mocked_print, repl: Riposte):
 @mock.patch("builtins.print")
 def test_banner_alternative_stream(mocked_print, repl: Riposte):
     repl.banner = "foobar"
+    repl.print_banner = False
     repl._process = mock.Mock(side_effect=StopIteration)
-    repl._parse_args = mock.Mock(return_value=True)
+    repl.parse_cli_arguments = mock.Mock()
 
     repl.run()
 
     mocked_print.assert_not_called()
+
+
+def test_parse_cli_arguments_prompt(repl: Riposte):
+    arguments = mock.Mock(c="", file="")
+    repl.parser.parse_args = mock.Mock(return_value=arguments)
+
+    repl.parse_cli_arguments()
+
+    assert repl.input_stream.gi_code is input_streams.prompt_input.__code__
+
+
+@mock.patch("riposte.riposte.input_streams")
+def test_parse_cli_arguments_cli(mocked_input_streams, repl: Riposte):
+    arguments = mock.Mock(c="foo bar", file="")
+    repl.parser.parse_args = mock.Mock(return_value=arguments)
+
+    repl.parse_cli_arguments()
+
+    mocked_input_streams.cli_input.assert_called_once_with(arguments.c)
+    assert repl.input_stream is mocked_input_streams.cli_input.return_value
+
+
+@mock.patch("riposte.riposte.input_streams")
+def test_parse_cli_arguments_file(mocked_input_streams, repl: Riposte):
+    arguments = mock.Mock(c="", file="foo.txt")
+    repl.parser.parse_args = mock.Mock(return_value=arguments)
+
+    repl.parse_cli_arguments()
+
+    mocked_input_streams.file_input.assert_called_once_with(
+        Path(arguments.file)
+    )
+    assert repl.input_stream is mocked_input_streams.file_input.return_value

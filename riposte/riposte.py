@@ -25,18 +25,16 @@ class Riposte(PrinterMixin):
         history_length: int = 100,
     ):
         self.banner = banner
+        self.print_banner = True
+        self.parser = None
+        self.arguments = None
+        self.input_stream = input_streams.prompt_input(lambda: self.prompt)
 
         self._prompt = prompt
         self._commands: Dict[str, Command] = {}
-        self._input_stream = input_streams.prompt_input(lambda: self.prompt)
 
-        self._parser = argparse.ArgumentParser()
-        self._parser.add_argument("file", nargs="?", default=None)
-        self._parser.add_argument(
-            "-c",
-            metavar="commands",
-            help="commands passed in as string, delimited with semicolon",
-        )
+        self.setup_cli()
+
         self._printer_thread = PrinterThread()
         self._setup_history(history_file, history_length)
         self._setup_completer()
@@ -136,20 +134,6 @@ class Riposte(PrinterMixin):
 
         return [" ".join(command) for command in commands if command]
 
-    def _parse_args(self) -> bool:  # TODO: test it
-        """ Parse passed arguments and determine alternative input stream. """
-        alternative_input_stream = False
-        arguments = self._parser.parse_args()
-
-        if arguments.c:
-            self._input_stream = input_streams.cli_input(arguments.c)
-            alternative_input_stream = True
-        elif arguments.file:
-            self._input_stream = input_streams.file_input(Path(arguments.file))
-            alternative_input_stream = True
-
-        return alternative_input_stream
-
     @staticmethod
     def _parse_line(line: str) -> List[str]:
         """ Split input line into command's name and its arguments. """
@@ -164,6 +148,34 @@ class Riposte(PrinterMixin):
             return self._commands[command_name]
         except KeyError:
             raise CommandError(f"Unknown command: {command_name}")
+
+    def setup_cli(self):
+        """ Initialize CLI
+
+        Overwrite this method in case of adding custom arguments.
+        """
+        self.parser = argparse.ArgumentParser()
+        self.parser.add_argument("file", nargs="?", default=None)
+        self.parser.add_argument(
+            "-c",
+            metavar="commands",
+            help="commands passed in as string, delimited with semicolon",
+        )
+
+    def parse_cli_arguments(self) -> None:
+        """ Parse passed CLI arguments
+
+        Overwrite this method in order to parse custom CLI arguments.
+        """
+        self.arguments = self.parser.parse_args()
+        if self.arguments.c:
+            self.print_banner = False
+            self.input_stream = input_streams.cli_input(self.arguments.c)
+        elif self.arguments.file:
+            self.print_banner = False
+            self.input_stream = input_streams.file_input(
+                Path(self.arguments.file)
+            )
 
     @property
     def prompt(self):
@@ -207,7 +219,7 @@ class Riposte(PrinterMixin):
         Get provided input, parse it, pick appropriate handling
         function and execute it.
         """
-        user_input = next(self._input_stream)()
+        user_input = next(self.input_stream)()
         if not user_input:
             return
 
@@ -218,9 +230,9 @@ class Riposte(PrinterMixin):
     def run(self) -> None:
         self._printer_thread.start()
 
-        alternative_input_stream = self._parse_args()
+        self.parse_cli_arguments()
 
-        if self.banner and not alternative_input_stream:
+        if self.banner and self.print_banner:
             # builtin print() to avoid race condition with input()
             print(self.banner)
 
