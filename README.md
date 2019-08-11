@@ -37,7 +37,8 @@ and they were completely right, the better way is called _Riposte_.
     * [History](#history)
     * [Prompt](#Prompt)
     * [Banner](#Banner)
-    * [CLI and inline command execution](#CLI-and-inline-command-execution)
+    * [Inline command execution](#Inline-command-execution)
+    * [CLI](#CLI)
 * [Project status](#project-status)
 * [Contributing](#contributing)
 * [Versioning](#versioning)
@@ -504,7 +505,7 @@ Welcome User Hello World v1.2.3
 riposte:~ $
 ```
 
-### CLI and inline command execution
+### Inline command execution
 Similarly to the `bash` if you delimit commands with semicolon you can trigger 
 execution of multiple commands in one line.
 ```bash
@@ -524,6 +525,74 @@ $
 ```
 Given all of this, you can also start to treat your application as something 
 that could be turned into automated scripts.
+
+### CLI
+If you application needs custom CLI arguments _Riposte_ gives you way to 
+implement it by overwriting `Riposte.setup_cli()` method. Let's say you want to 
+introduce `--verbose` flag into your application:
+```python
+# custom_cli_args.py
+
+from riposte import Riposte
+
+
+class CustomArgsRiposte(Riposte):
+    def setup_cli(self):
+        super().setup_cli()  # preserve default Riposte CLI
+
+        self.parser.add_argument(
+            "-v", "--verbose", action="store_true", help="Verbose mode"
+        )
+
+
+repl = CustomArgsRiposte()
+
+
+@repl.command("foo")
+def foo(bar: str):
+    repl.success("Foobar executed.")
+
+    if repl.arguments.verbose:
+        repl.success("Argument passed as bar: ", bar)
+
+
+repl.run()
+
+```
+```bash
+$ python custom_cli_args.py -v
+riposte:~ $ foo 123
+[+] Foobar executed.
+[+] Argument passed as bar:  123
+riposte:~ $ 
+```
+`Riposte.parser` is an instance of Python's builtin [`argparse.ArgumentParser`](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser) 
+so for all further instructions regarding adding CLI arguments please follow 
+[`argparse`](https://docs.python.org/3/library/argparse.html#module-argparse) 
+documentation.
+
+Passed arguments are being parsed in `Riposte.run()` and stored in 
+`Riposte.arguments` so you can access it within your application. If you need 
+to access them before entering the main evaluation loop you can overwrite 
+`Riposte.parse_cli_arguments()`
+```python
+from riposte import Riposte
+
+
+class CustomArgsRiposte(Riposte):
+    def setup_cli(self):
+        super().setup_cli()  # preserve default Riposte CLI
+
+        self.parser.add_argument(
+            "-v", "--verbose", action="store_true", help="Verbose mode"
+        )
+
+    def parse_cli_arguments(self):
+        super().parse_cli_arguments()  # preserve default Riposte CLI
+
+        if self.arguments.verbose:
+            do_something_specific()
+```
 
 ## Project status
 _Riposte_ is under development. It might be considered to be in beta phase. 
