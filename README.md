@@ -39,6 +39,7 @@ and they were completely right, the better way is called _Riposte_.
     * [Banner](#Banner)
     * [Inline command execution](#Inline-command-execution)
     * [CLI](#CLI)
+    * [Input streams](#input-streams)
 * [Project status](#project-status)
 * [Contributing](#contributing)
 * [Versioning](#versioning)
@@ -504,6 +505,9 @@ Welcome User Hello World v1.2.3
 
 riposte:~ $
 ```
+If for some reason you don't want to display banner (Maybe you have custom 
+[input stream](#input-streams)?) you can set `Riposte.print_banner` attribute 
+to `False`.
 
 ### Inline command execution
 Similarly to the `bash` if you delimit commands with semicolon you can trigger 
@@ -592,6 +596,87 @@ class CustomArgsRiposte(Riposte):
 
         if self.arguments.verbose:
             do_something_specific()
+```
+
+### Input streams
+The input stream is an abstraction telling how you feed _Riposte_ with 
+commands. Right now you can use following ones out of the box.
+#### Prompt
+Default one which allows you input commands using the traditional prompt.
+#### CLI
+`Riposte` also exposes CLI for your applications which gives you the ability 
+to pass commands using `-c` switch:
+```bash
+$ python app.py -c "hello; hello; hello;"
+[+] Is it me you looking for?
+[+] Is it me you looking for?
+[+] Is it me you looking for?
+```
+#### File
+You can also pass text file containing commands as an argument to your 
+application:
+```python
+# demo.py
+
+from riposte import Riposte
+
+repl = Riposte()
+
+@repl.command("hello")
+def hello():
+    repl.print("Hello World!")
+
+repl.run()
+```
+`commands.rpst` text file containing commands to be executed:
+```
+hello
+hello
+hello
+```
+```bash
+$ python demo.py commands.rpst
+[+] Is it me you looking for?
+[+] Is it me you looking for?
+[+] Is it me you looking for?
+```
+#### Adding custom input stream
+If for some reason you need a custom way of feeding _Riposte_ with commands 
+you can always add your custom input stream. The input stream is a generator 
+that yields function which after calling it returns a string (the command) 
+`Generator[Callable[[], str], None, None]`. Let's say you are an evil genius 
+and want to make your interactive shell application less interactive by 
+feeding it with some kind of messaging system.
+```python
+import itertools
+from typing import Callable, Generator
+
+from riposte import Riposte
+from some.messaging.system import Subscriber
+
+
+def some_messaging_system_input_stream(
+    subscriber: Subscriber  # you can parametrize your input streams
+) -> Generator[Callable, None, None]:
+    # itertools.repeat() make sure that your input stream runs forever
+    yield from itertools.repeat(subscriber.poll)  # calling poll() will return command
+
+
+class CustomInputStreamRiposte(Riposte):
+    def setup_cli(self):
+        super().setup_cli()  # preserve default Riposte CLI
+
+        self.parser.add_argument(
+            "-h", "--host", help="Some messaging system address"
+        )
+
+    def parse_cli_arguments(self) -> None:
+        super().parse_cli_arguments()  # preserve default Riposte CLI
+
+        if self.arguments.host:
+            subscriber = Subscriber(self.arguments.host)
+            self.input_stream = some_messaging_system_input_stream(subscriber)
+            self.print_banner = False  # I guess you don't want to print banner 
 ```
 
 ## Project status
