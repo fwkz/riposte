@@ -506,7 +506,7 @@ Welcome User Hello World v1.2.3
 riposte:~ $
 ```
 If for some reason you don't want to display banner (Maybe you have custom 
-[input stream](#input-streams)?) you can set `Riposte.print_banner` attribute 
+[input stream](#adding-custom-input-stream)?) you can set `Riposte.print_banner` attribute 
 to `False`.
 
 ### Inline command execution
@@ -624,7 +624,7 @@ repl = Riposte()
 
 @repl.command("hello")
 def hello():
-    repl.print("Hello World!")
+    repl.print("Is it me you looking for?")
 
 repl.run()
 ```
