@@ -1,7 +1,10 @@
 import argparse
 import atexit
 from pathlib import Path
-import readline
+try:
+    import readline
+except ImportError:
+    import pyreadline as readline
 import shlex
 from typing import Callable, Dict, Iterable, List, Optional, Sequence
 
