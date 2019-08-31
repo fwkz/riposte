@@ -4,5 +4,6 @@
 __pycache__/
 dist/
 build/
+pip-wheel-metadata/
 .DS_Store
 _version.py
