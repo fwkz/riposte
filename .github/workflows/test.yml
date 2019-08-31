@@ -1,0 +1,49 @@
+name: Tests
+
+on: [push]
+
+jobs:
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Lint
+      run: |
+        pip install -U .[dev]
+        flake8
+        black --check --diff .
+        isort --check-only --diff
+
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macOS-10.14, ubuntu-18.04]
+        python-version: [3.6, 3.7]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Prepare virtualenv
+      run: python -m venv venv
+    - name: Package
+      run: |
+        source venv/bin/activate
+        pip install wheel
+        python setup.py bdist_wheel
+    - name: Install
+      run: |
+        source venv/bin/activate
+        find dist -name *.whl | awk '{ print $0"[dev]" }' | xargs pip install
+    - name: Test
+      run: |
+        source venv/bin/activate
+        rm -rf riposte
+        pytest tests/
