@@ -25,7 +25,17 @@ setup(
     author_email="f4wkes@gmail.com",
     packages=find_packages(),
     python_requires=">=3.6",
-    extras_require={"dev": ["black", "flake8", "isort", "pytest", "twine"]},
+    extras_require={
+        "dev": [
+            "black",
+            "flake8",
+            "isort",
+            "pytest",
+            "setuptools_scm",
+            "twine",
+            "wheel",
+        ]
+    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
