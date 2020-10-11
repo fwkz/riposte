@@ -31,14 +31,14 @@ lint:
 	$(call colorecho, "\nLinting...")
 	flake8
 	black --check --diff .
-	isort --check-only --diff
+	isort --check-only --diff .
 
 
 .PHONY: reformat
 reformat:
 	$(call colorecho, "\nReformatting...")
 	black .
-	isort -y
+	isort .
 
 
 .PHONY: clean
