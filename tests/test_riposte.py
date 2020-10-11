@@ -117,9 +117,9 @@ def test_complete_already_attached(repl: Riposte, foo_command: Command):
         ("foo bar; scoo bee; doo bee", ["foo bar", "scoo bee", "doo bee"]),
         ("foo   ;   bar;  ;", ["foo", "bar"]),
         ("foo 'bar;' scoo bee", ["foo 'bar;' scoo bee"]),
-        ("foo bar\; scoo bee", ["foo bar\\; scoo bee"]),  # noqa
-        ("foo bar\\; scoo bee", ["foo bar\\; scoo bee"]),
-        ("foo bar\\\; scoo bee", ["foo bar\\\\; scoo bee"]),
+        (r"foo bar\; scoo bee", ["foo bar\\; scoo bee"]),
+        (r"foo bar\\; scoo bee", ["foo bar\\\\; scoo bee"]),
+        (r"foo bar\\\; scoo bee", ["foo bar\\\\\\; scoo bee"]),
     ),
 )
 def test_split_inline_commands(input, expected, repl: Riposte):
