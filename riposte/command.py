@@ -24,7 +24,7 @@ class Command:
         self._validate_guides()
 
     def _validate_guides(self) -> None:
-        """ Validate guides setup.
+        """Validate guides setup.
 
         Check if guides setup is valid and raise exception with
         informative message what is wrong.
@@ -47,7 +47,7 @@ class Command:
                     )
 
     def _process_arguments(self, name: str, *args) -> List:
-        """ Process each argument according to selected chain of guides
+        """Process each argument according to selected chain of guides
 
         Process each argument according to selected chain of guides. Each
         guide from the collection is applied to the every argument.
@@ -65,7 +65,7 @@ class Command:
         return processed
 
     def _apply_guides(self, bound_arguments: inspect.BoundArguments) -> List:
-        """ Apply guide functions.
+        """Apply guide functions.
 
         Apply guide functions to values of type `str` delivered by user
         using `input()`.
@@ -96,7 +96,7 @@ class Command:
             raise CommandError(e)
 
     def execute(self, *args: str) -> None:
-        """ Execute handling function (`self._func`) bound to command.
+        """Execute handling function (`self._func`) bound to command.
 
         In case of argument mismatch during function call we want to give
         user informative feedback that's why we are wrapping
@@ -114,7 +114,7 @@ class Command:
         return self._completer_function(*args, **kwargs)
 
     def attach_completer(self, completer_function: Callable) -> None:
-        """ Attach complater function.
+        """Attach complater function.
 
         # TODO: Maybe we should make it @property?
         """

@@ -58,7 +58,7 @@ class Riposte(PrinterMixin):
         )
 
     def _complete(self, text: str, state: int) -> Optional[Sequence[str]]:
-        """ Return the next possible completion for `text`.
+        """Return the next possible completion for `text`.
 
         If a command has not been entered, then complete against command list.
         Otherwise try to call specific command completer function to get list
@@ -90,7 +90,7 @@ class Riposte(PrinterMixin):
             return
 
     def contextual_complete(self) -> List[str]:
-        """ Entry point for contextual tab completion.
+        """Entry point for contextual tab completion.
 
         Entry point for contextual tab completion depending on `Riposte` app
         state. Overwrite this method to suggest suitable commands.
@@ -150,7 +150,7 @@ class Riposte(PrinterMixin):
             raise CommandError(f"Unknown command: {command_name}")
 
     def setup_cli(self):
-        """ Initialize CLI
+        """Initialize CLI
 
         Overwrite this method in case of adding custom arguments.
         """
@@ -163,7 +163,7 @@ class Riposte(PrinterMixin):
         )
 
     def parse_cli_arguments(self) -> None:
-        """ Parse passed CLI arguments
+        """Parse passed CLI arguments
 
         Overwrite this method in order to parse custom CLI arguments.
         """
@@ -179,7 +179,7 @@ class Riposte(PrinterMixin):
 
     @property
     def prompt(self):
-        """ Entrypoint for customizing prompt
+        """Entrypoint for customizing prompt
 
         Please overwrite this method to provide contextual prompt depending on
         different state of `Riposte` app.
@@ -214,7 +214,7 @@ class Riposte(PrinterMixin):
         return wrapper
 
     def _process(self) -> None:
-        """ Process input provided by the input stream.
+        """Process input provided by the input stream.
 
         Get provided input, parse it, pick appropriate handling
         function and execute it.
