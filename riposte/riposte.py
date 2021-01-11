@@ -101,11 +101,14 @@ class Riposte(PrinterMixin):
         self, text, line, start_index, end_index
     ) -> List[str]:
         """ Complete command w/o any argument """
-        return [
+        results = [
             command
             for command in self.contextual_complete()
             if command.startswith(text)
         ]
+        if len(results) == 1:
+            results[0] = f"{results[0]} "
+        return results
 
     @staticmethod
     def _split_inline_commands(line: str) -> List[str]:
