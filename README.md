@@ -112,13 +112,13 @@ repl = Riposte()
 
 @repl.command("hello")
 def hello():
-    repl.success("Is it me you looking for?")
+    repl.success("Is it me you're looking for?")
 
 repl.run()
 ```
 ```bash
 riposte:~ $ hello
-[+] Is it me you looking for?
+[+] Is it me you're looking for?
 ```
 Additionally `Riposte.command` accepts few optional parameters:
 * `description` few words describing command which you can later use to build 
@@ -514,17 +514,17 @@ Similarly to the `bash` if you delimit commands with semicolon you can trigger
 execution of multiple commands in one line.
 ```bash
 riposte:~ $ hello; hello; hello
-[+] Is it me you looking for?
-[+] Is it me you looking for?
-[+] Is it me you looking for?
+[+] Is it me you're looking for?
+[+] Is it me you're looking for?
+[+] Is it me you're looking for?
 ```
 `Riposte` also exposes CLI for your applications which gives you the ability to 
 pass commands using `-c` switch:
 ```bash
 $ python app.py -c "hello; hello; hello;"
-[+] Is it me you looking for?
-[+] Is it me you looking for?
-[+] Is it me you looking for?
+[+] Is it me you're looking for?
+[+] Is it me you're looking for?
+[+] Is it me you're looking for?
 $ 
 ```
 Given all of this, you can also start to treat your application as something 
@@ -608,9 +608,9 @@ Default one which allows you input commands using the traditional prompt.
 to pass commands using `-c` switch:
 ```bash
 $ python app.py -c "hello; hello; hello;"
-[+] Is it me you looking for?
-[+] Is it me you looking for?
-[+] Is it me you looking for?
+[+] Is it me you're looking for?
+[+] Is it me you're looking for?
+[+] Is it me you're looking for?
 ```
 #### File
 You can also pass text file containing commands as an argument to your 
@@ -624,7 +624,7 @@ repl = Riposte()
 
 @repl.command("hello")
 def hello():
-    repl.print("Is it me you looking for?")
+    repl.print("Is it me you're looking for?")
 
 repl.run()
 ```
@@ -636,9 +636,9 @@ hello
 ```
 ```bash
 $ python demo.py commands.rpst
-[+] Is it me you looking for?
-[+] Is it me you looking for?
-[+] Is it me you looking for?
+[+] Is it me you're looking for?
+[+] Is it me you're looking for?
+[+] Is it me you're looking for?
 ```
 #### Adding custom input stream
 If for some reason you need a custom way of feeding _Riposte_ with commands 
