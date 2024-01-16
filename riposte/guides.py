@@ -19,7 +19,7 @@ def encode(value: str) -> Any:
 
 
 def get_guides(annotation) -> Tuple[Callable]:
-    """ Based on given annotation get chain of guides. """
+    """Based on given annotation get chain of guides."""
 
     if annotation in (str, AnyStr, Text):
         return ()
@@ -30,7 +30,7 @@ def get_guides(annotation) -> Tuple[Callable]:
 
 
 def extract_guides(func: Callable) -> Dict[str, Tuple[Callable]]:
-    """ Extract guides out of type-annotations. """
+    """Extract guides out of type-annotations."""
     return {
         arg: get_guides(annotation)
         for arg, annotation in func.__annotations__.items()

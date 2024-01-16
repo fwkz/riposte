@@ -100,7 +100,7 @@ class Riposte(PrinterMixin):
     def _raw_command_completer(
         self, text, line, start_index, end_index
     ) -> List[str]:
-        """ Complete command w/o any argument """
+        """Complete command w/o any argument"""
         results = [
             command
             for command in self.contextual_complete()
@@ -112,7 +112,7 @@ class Riposte(PrinterMixin):
 
     @staticmethod
     def _split_inline_commands(line: str) -> List[str]:
-        """ Split multiple inline commands. """
+        """Split multiple inline commands."""
         parsed = shlex.split(line, posix=False)
 
         commands = []
@@ -139,14 +139,14 @@ class Riposte(PrinterMixin):
 
     @staticmethod
     def _parse_line(line: str) -> List[str]:
-        """ Split input line into command's name and its arguments. """
+        """Split input line into command's name and its arguments."""
         try:
             return shlex.split(line)
         except ValueError as err:
             raise RiposteException(err)
 
     def _get_command(self, command_name: str) -> Command:
-        """ Resolve command name into registered `Command` object. """
+        """Resolve command name into registered `Command` object."""
         try:
             return self._commands[command_name]
         except KeyError:
@@ -195,7 +195,7 @@ class Riposte(PrinterMixin):
         description: str = "",
         guides: Dict[str, Iterable[Callable]] = None,
     ) -> Callable:
-        """ Decorator for bounding command with handling function. """
+        """Decorator for bounding command with handling function."""
 
         def wrapper(func: Callable):
             if name not in self._commands:
@@ -207,7 +207,7 @@ class Riposte(PrinterMixin):
         return wrapper
 
     def complete(self, command: str) -> Callable:
-        """ Decorator for bounding complete function with `Command`. """
+        """Decorator for bounding complete function with `Command`."""
 
         def wrapper(func: Callable):
             cmd = self._get_command(command)

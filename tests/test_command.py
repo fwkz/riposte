@@ -48,11 +48,9 @@ def test_attach_completer_already_attached(command):
 
 @mock.patch("riposte.command.extract_guides")
 def test_command_setup_guides_validate(mocked_extract_guides):
-
     with mock.patch.object(
         Command, "_validate_guides"
     ) as mocked_validate_guides:
-
         Command("foo", mock.Mock(), "description")
 
         mocked_validate_guides.assert_called_once_with()
@@ -106,7 +104,7 @@ def test_validate_guides(command, guides):
         command._validate_guides()
 
 
-@mock.patch("riposte.command.inspect")
+@mock.patch("riposte.command.inspect", new_callable=mock.MagicMock)
 def test_bind_arguments(inspect_mock, command):
     args = (1, 2)
     command._bind_arguments(*args)
@@ -115,7 +113,7 @@ def test_bind_arguments(inspect_mock, command):
     inspect_mock.signature.return_value.bind.assert_called_once_with(*args)
 
 
-@mock.patch("riposte.command.inspect")
+@mock.patch("riposte.command.inspect", new_callable=mock.MagicMock)
 def test_bind_arguments_exception(inspect_mock, command):
     args = (1, 2)
     inspect_mock.signature.return_value.bind.side_effect = TypeError

@@ -89,7 +89,7 @@ class Command:
         return processed
 
     def _bind_arguments(self, *args) -> inspect.BoundArguments:
-        """ Check whether given `args` match `_func` signature. """
+        """Check whether given `args` match `_func` signature."""
         try:
             return inspect.signature(self._func).bind(*args)
         except TypeError as e:
@@ -106,7 +106,7 @@ class Command:
         return self._func(*self._apply_guides(self._bind_arguments(*args)))
 
     def complete(self, *args, **kwargs) -> Sequence:
-        """ Execute completer function bound to this command. """
+        """Execute completer function bound to this command."""
 
         if not self._completer_function:
             return ()

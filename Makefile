@@ -1,3 +1,5 @@
+REFORMAT_DIRS:=riposte
+
 define colorecho
       @tput setaf 6
       @echo $1
@@ -9,14 +11,14 @@ endef
 all: reformat tests lint
 
 
-.PHONY: build
-build: clean
+.PHONY: package
+package: clean
 	$(call colorecho, "\n Building package distributions...")
-	python setup.py sdist bdist_wheel
+	python -m build .
 
 
 .PHONY: publish
-publish: build
+publish: package
 	twine upload dist/*
 
 
@@ -29,17 +31,16 @@ tests: clean
 .PHONY: lint
 lint:
 	$(call colorecho, "\nLinting...")
-	flake8
-	black --check --diff .
-	isort --check-only --diff .
-
+	black --check --diff $(REFORMAT_DIRS)
+	isort --check-only --diff $(REFORMAT_DIRS)
+	ruff check --diff $(REFORMAT_DIRS)
 
 .PHONY: reformat
 reformat:
 	$(call colorecho, "\nReformatting...")
-	black .
-	isort .
-
+	black $(REFORMAT_DIRS)
+	isort $(REFORMAT_DIRS)
+	ruff check --fix $(REFORMAT_DIRS)
 
 .PHONY: clean
 clean:

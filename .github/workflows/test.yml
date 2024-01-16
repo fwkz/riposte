@@ -8,23 +8,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python 3.7
+    - name: Set up Python 3.12
       uses: actions/setup-python@v1
       with:
-        python-version: 3.7
+        python-version: 3.12
     - name: Lint
       run: |
         pip install -U .[dev]
-        flake8
-        black --check --diff .
-        isort --check-only --diff .
+        black --check --diff riposte/ 
+        isort --check-only --diff riposte/
+        ruff check --diff riposte/ 
 
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macOS-10.15, ubuntu-18.04]
-        python-version: [3.6, 3.7, 3.8]
+        os: [macOS-13, ubuntu-22.04]
+        python-version: [3.8, 3.9, "3.10", 3.11, 3.12]
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python ${{ matrix.python-version }}
@@ -36,8 +36,8 @@ jobs:
     - name: Package
       run: |
         source venv/bin/activate
-        pip install wheel
-        python setup.py bdist_wheel
+        pip install build 
+        python -m build --wheel .
     - name: Install
       run: |
         source venv/bin/activate
