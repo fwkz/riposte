@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from riposte import Riposte
+from riposte import Group, Riposte
 from riposte.command import Command
 
 
@@ -31,3 +31,8 @@ def command():
         func=Mock(name="mocked_handling_function", __annotations__={}),
         description="foo description",
     )
+
+
+@pytest.fixture
+def group():
+    return Group()

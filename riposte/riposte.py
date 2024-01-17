@@ -3,11 +3,11 @@ import atexit
 from pathlib import Path
 import readline
 import shlex
-from typing import Callable, Dict, Iterable, List, Optional, Sequence
+from typing import List, Optional, Sequence
 
 from . import input_streams
-from .command import Command
 from .exceptions import CommandError, RiposteException, StopRiposteException
+from .group import Group
 from .printer.mixins import PrinterMixin
 from .printer.thread import PrinterThread
 
@@ -16,7 +16,7 @@ def is_libedit():
     return "libedit" in readline.__doc__
 
 
-class Riposte(PrinterMixin):
+class Riposte(Group, PrinterMixin):
     def __init__(
         self,
         prompt: str = "riposte:~ $ ",
@@ -24,6 +24,8 @@ class Riposte(PrinterMixin):
         history_file: Path = Path.home() / ".riposte",
         history_length: int = 100,
     ):
+        super().__init__()
+
         self.banner = banner
         self.print_banner = True
         self.parser = None
@@ -31,7 +33,6 @@ class Riposte(PrinterMixin):
         self.input_stream = input_streams.prompt_input(lambda: self.prompt)
 
         self._prompt = prompt
-        self._commands: Dict[str, Command] = {}
 
         self.setup_cli()
 
@@ -145,13 +146,6 @@ class Riposte(PrinterMixin):
         except ValueError as err:
             raise RiposteException(err)
 
-    def _get_command(self, command_name: str) -> Command:
-        """Resolve command name into registered `Command` object."""
-        try:
-            return self._commands[command_name]
-        except KeyError:
-            raise CommandError(f"Unknown command: {command_name}")
-
     def setup_cli(self):
         """Initialize CLI
 
@@ -180,6 +174,15 @@ class Riposte(PrinterMixin):
                 Path(self.arguments.file)
             )
 
+    def register_group(self, group: Group) -> None:
+        for command in group._commands.values():
+            if command.name in self._commands:
+                raise RiposteException(
+                    f"'{command.name}' command already exists."
+                )
+
+            self._commands[command.name] = command
+
     @property
     def prompt(self):
         """Entrypoint for customizing prompt
@@ -188,33 +191,6 @@ class Riposte(PrinterMixin):
         different state of `Riposte` app.
         """
         return self._prompt
-
-    def command(
-        self,
-        name: str,
-        description: str = "",
-        guides: Dict[str, Iterable[Callable]] = None,
-    ) -> Callable:
-        """Decorator for bounding command with handling function."""
-
-        def wrapper(func: Callable):
-            if name not in self._commands:
-                self._commands[name] = Command(name, func, description, guides)
-            else:
-                raise RiposteException(f"'{name}' command already exists.")
-            return func
-
-        return wrapper
-
-    def complete(self, command: str) -> Callable:
-        """Decorator for bounding complete function with `Command`."""
-
-        def wrapper(func: Callable):
-            cmd = self._get_command(command)
-            cmd.attach_completer(func)
-            return func
-
-        return wrapper
 
     def _process(self) -> None:
         """Process input provided by the input stream.
