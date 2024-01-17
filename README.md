@@ -1,5 +1,5 @@
 # riposte
-[![Build Status](https://travis-ci.org/fwkz/riposte.svg?branch=master)](https://travis-ci.org/fwkz/riposte)
+[![Build Status](https://github.com/fwkz/riposte/actions/workflows/test.yml/badge.svg)](https://github.com/fwkz/riposte/actions/workflows/test.yml)
 [![License](https://img.shields.io/pypi/l/riposte.svg)](https://github.com/fwkz/riposte/blob/master/LICENSE)
 [![Version](https://img.shields.io/pypi/v/riposte.svg)](https://pypi.org/project/riposte/)
 [![Python](https://img.shields.io/pypi/pyversions/riposte.svg)](https://pypi.org/project/riposte/)
