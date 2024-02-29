@@ -351,10 +351,10 @@ from riposte.printer.mixins import PrinterBaseMixin
 
 class CustomPrinterMixin(PrinterBaseMixin):
     def ask(self, *args, **kwargs):  # adding new one
-        self._print((*args, "???"), **kwargs)
+        self._print(*(*args, "???"), **kwargs)
         
     def shout(self, *args, **kwargs):  # adding new one
-        self._print((*args, "!!!"), **kwargs)
+        self._print(*(*args, "!!!"), **kwargs)
 
 class CustomRiposte(Riposte, CustomPrinterMixin):
     pass
@@ -365,7 +365,6 @@ repl = CustomRiposte()
 def foobar(message: str):
     repl.shout(message)
     repl.ask(message)
-    repl.success(message)  # It'll raise exception as it's no longer available
 ```
 
 #### Coloring output with `Pallete`
