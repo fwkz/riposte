@@ -13,7 +13,7 @@ from .printer.thread import PrinterThread
 
 
 def is_libedit():
-    return readline.__doc__ and 'libedit' in readline.__doc__
+    return readline.__doc__ and "libedit" in readline.__doc__
 
 
 class Riposte(PrinterMixin):
