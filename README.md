@@ -53,7 +53,7 @@ The package is available on PyPI so please use
 ```bash
 pip install riposte
 ```
-Riposte supports Python 3.6 and newer.
+Riposte supports Python 3.8 and newer.
 
 ### Example usage
 ```python
