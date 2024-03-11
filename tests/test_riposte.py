@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-from riposte import Riposte, input_streams
+from riposte import Group, Riposte, input_streams
 from riposte.command import Command
 from riposte.exceptions import CommandError, RiposteException
 
@@ -222,3 +222,36 @@ def test_parse_cli_arguments_file(mocked_input_streams, repl: Riposte):
         Path(arguments.file)
     )
     assert repl.input_stream is mocked_input_streams.file_input.return_value
+
+
+def test_register_group(repl: Riposte, group: Group):
+    @group.command("foo")
+    def foo():
+        pass
+
+    @repl.command("bar")
+    def bar():
+        pass
+
+    commands_before_register = repl._commands
+
+    repl.register_group(group)
+
+    assert repl._commands == {"foo": foo, **commands_before_register}
+
+
+def test_register_group_existing_command(repl: Riposte, group: Group):
+    @group.command("foo")
+    def foo():
+        pass
+
+    @repl.command("foo")
+    def bar():
+        pass
+
+    commands_before_register = repl._commands
+
+    with pytest.raises(RiposteException):
+        repl.register_group(group)
+
+    assert repl._commands == commands_before_register
